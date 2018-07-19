@@ -10,21 +10,23 @@ import firebase from 'firebase'
 import firestore from 'firebase/firestore'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import {Tabs, Tab} from 'material-ui/Tabs';
+import {GridList, GridTile} from 'material-ui/GridList';
 
 class Dashboard extends Component{
 
     constructor(props){
         super(props);
         this.state = {
-            open: true,
+            open: false,
             value: '',
             animal: '',
+            picture: '',
+            sacrifice: '',
             animalData: {
                 age: null,
                 color: '',
                 description: '',
-                animal: '',
-                sacrifice: '',
 
             }
         }
@@ -36,6 +38,7 @@ class Dashboard extends Component{
 
     handleClose = () => {
         this.setState({open: false});
+        console.log(this.state.picture);
     };
 
     textChange(p, e, v){
@@ -50,6 +53,7 @@ class Dashboard extends Component{
         var db = firebase.firestore();
         var animalData = this.state.animalData;
         animalData.animal = this.state.animal;
+        animalData.animalPicture = this.state.picture;
         console.log(animalData);
         db.collection('animal').add(animalData);
         this.setState({open: false});
@@ -57,7 +61,28 @@ class Dashboard extends Component{
 
     handleChange(event, index, value) {
         var animal = event.target.textContent;
+        console.log(animal);
+        console.log(value);
         this.setState({value: value, animal: animal});
+    }
+    handleChangeS(event, index, value) {
+        var sacrifice = event.target.textContent;
+        console.log(sacrifice);
+        this.setState({valueS: value, sacrifice: sacrifice});
+    }
+
+    picture(e){
+        var picture = e.target.files[0];
+        console.log(picture.name);
+        var event = firebase.storage().ref().child(picture.name).put(picture);
+        event.snapshot.ref.getDownloadURL().then(function(downloadURL){
+            console.log(downloadURL);
+        })
+        // .then((snapshot) => {
+        //     console.log(snapshot);
+        //     var picturePath = snapshot.downloadURL;
+        //     console.log(picturePath);
+        //     this.setState({picture: picturePath});
     }
 
     render(){
@@ -67,6 +92,7 @@ class Dashboard extends Component{
         return(
             <div>
                 <AppBar title='Dashboard'/>
+
                 <div style={{position: 'fixed', right: '10px', bottom: '16px'}}>
                     <Button variant="fab" color="secondary" aria-label="add" onClick={this.handleOpen} className='button'>
                         <AddIcon/>
@@ -88,14 +114,20 @@ class Dashboard extends Component{
                                onChange={this.textChange.bind(this, 'age')}/><br/>
                     <TextField hintText="Animal color" type="text" value={this.state.animalData.color}
                                onChange={this.textChange.bind(this , 'color')}/><br/>
-                    <p>sacrifice will be</p>
-                    <RadioButtonGroup name="gender" labelPosition="right" defaultSelected="male">
-                        <RadioButton style={{display: 'inline-block', width: '16%'}} value="1st" label="1st day"/>
-                        <RadioButton style={{display: 'inline-block', width: '17%'}} value="2nd" label="2nd day"/>
-                        <RadioButton style={{display: 'inline-block', width: '16%'}} value="3rd" label="3rd day"/>
-                    </RadioButtonGroup>
+                    {/*<p>sacrifice will be</p>*/}
+                    {/*<RadioButtonGroup name="gender" labelPosition="right" defaultSelected="male">*/}
+                        {/*<RadioButton style={{display: 'inline-block', width: '16%'}} value="1st" label="1st day"/>*/}
+                        {/*<RadioButton style={{display: 'inline-block', width: '17%'}} value="2nd" label="2nd day"/>*/}
+                        {/*<RadioButton style={{display: 'inline-block', width: '16%'}} value="3rd" label="3rd day"/>*/}
+                    {/*</RadioButtonGroup>*/}
+                    {/*<SelectField value={this.state.value} onChange={this.handleChangeS.bind(this)} floatingLabelText="Sacrifice will be">*/}
+                        {/*<MenuItem key={1} value={1} primaryText="1st day"/>*/}
+                        {/*<MenuItem key={2} value={2} primaryText="2nd day"/>*/}
+                        {/*<MenuItem key={3} value={3} primaryText="3rd day"/>*/}
+                    {/*</SelectField><br/>*/}
                     <TextField hintText="Description" type="text" value={this.state.animalData.description}
                                onChange={this.textChange.bind(this, 'description')}/><br/>
+                    <TextField hintText="picture" type="file" onChange={this.picture.bind(this)}/><br/>
                 </Dialog>
             </div>
         )
