@@ -5,7 +5,8 @@ import {List, ListItem} from 'material-ui/List';
 import Dashboard from "./dashboard";
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
-import Toolbar from '@material-ui/core/Toolbar';import firebase from 'firebase'
+import Toolbar from '@material-ui/core/Toolbar';
+import firebase from 'firebase'
 import firestore from 'firebase/firestore'
 import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
@@ -18,7 +19,6 @@ class DashboardS extends Component {
         };
         this.loadAnimalData();
     }
-
 
     loadAnimalData() {
         var arr = [];
@@ -50,11 +50,11 @@ class DashboardS extends Component {
                 </AppBar>
                 <GridList cols={4} cellHeight='auto'>
                     <GridTile cols={1}>
-                        <List style={{borderRight: '3px solid #3f51b5' }}>
-                            {this.state.animalsData.map((data) => {
+                        <List style={{borderRight: '3px solid #3f51b5',}}>
+                            {this.state.animalsData.map((data , index) => {
                                 return (
                                     <div>
-                                        <ListItem key={data.id} onClick={this.sendData.bind(this, data)}>
+                                        <ListItem key={index} onClick={this.sendData.bind(this, data)}>
                                             {data.animal}
                                         </ListItem>
                                     </div>

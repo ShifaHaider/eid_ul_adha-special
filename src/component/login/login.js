@@ -1,10 +1,14 @@
 import React, {Component} from 'react';
 import firebase from 'firebase'
 import firestore from 'firebase/firestore'
-import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import AppBar from 'material-ui/AppBar';
+import AppBar from '@material-ui/core/AppBar';
+import Typography from '@material-ui/core/Typography';
+import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import CardContent from '@material-ui/core/CardContent';
+import Card from '@material-ui/core/Card';
 import './style.css'
 
 class Login extends Component {
@@ -24,7 +28,7 @@ class Login extends Component {
             .then((data) => {
                 console.log(data.user.uid);
                 // localStorage.setItem('userId', data.uid);
-                // this.props.history.push('/dashboard');
+                this.props.history.push('/dashboardS');
             })
             .catch((error) => {
                 this.setState({message: error.message, isAlertOpen: true});
@@ -40,17 +44,33 @@ class Login extends Component {
     render() {
         return (
             <div>
-             <AppBar title='Login'/>
+                <AppBar position="static">
+                    <Toolbar><Typography variant="title" color="inherit">Login</Typography></Toolbar>
+                </AppBar>
                 <Card className='card'>
-                    <CardText>
-                        <TextField hintText="Email Field" floatingLabelText="Email" type="text"
-                            value={this.state.loginData.logEmail} onChange={this.handleChangeLog.bind(this, 'logEmail')}/><br/>
-                        <TextField hintText="Password Field" floatingLabelText="Password" type="password"
-                            value={this.state.loginData.logPassword} onChange={this.handleChangeLog.bind(this, 'logPassword')}/>
-                    </CardText>
-                    <CardText>
-                        <RaisedButton label='Login' secondary={true} onClick={this.loginAccount.bind(this)} />
-                </CardText>
+                    <CardContent>
+                        <div>
+                            <TextField
+                                label='Email'
+                                type="text"
+                                value={this.state.loginData.logEmail}
+                                onChange={this.handleChangeLog.bind(this, 'logEmail')}/><br/>
+                        </div>
+                    </CardContent>
+                    <CardContent>
+                        <div>
+                            <TextField
+                                label='Password'
+                                type="password"
+                                value={this.state.loginData.logPassword}
+                                onChange={this.handleChangeLog.bind(this, 'logPassword')}/><br/>
+                        </div>
+                    </CardContent>
+                    <CardContent>
+                        <div>
+                            <Button variant="contained" color="primary" onClick={this.loginAccount.bind(this)}>Login</Button>
+                        </div>
+                    </CardContent>
                 </Card>
             </div>
         )

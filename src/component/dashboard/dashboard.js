@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import AppBar from 'material-ui/AppBar';
-import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
@@ -14,6 +13,9 @@ import {Tabs, Tab} from 'material-ui/Tabs';
 import {GridList, GridTile} from 'material-ui/GridList';
 import {List, ListItem} from 'material-ui/List';
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import GridListTile from '@material-ui/core/GridListTile';
+import Button from '@material-ui/core/Button';
 
 class Dashboard extends Component {
 
@@ -23,6 +25,7 @@ class Dashboard extends Component {
             open: false,
             modelOpen: false,
             value: '',
+            secondValue: '',
             animal: 'Cow',
             animalUpdate: '',
             picture: '',
@@ -34,16 +37,18 @@ class Dashboard extends Component {
             },
             animalDetail: {},
             animalId: '',
-            orders : [],
-            totalOrders: 0
+            orders: [],
+            totalOrders: 0,
+            userID: null
         };
+
     }
 
     componentWillReceiveProps(nextProps) {
         this.animalDetail = nextProps.animalData;
         // console.log(this.animalDetail);
         this.setState({animalDetail: this.animalDetail});
-        console.log(this.state.animalDetail);
+        {this.animalDetail.id != undefined ? this.loadOrders() : null}
     }
 
     handleOpen = () => {
@@ -52,18 +57,15 @@ class Dashboard extends Component {
 
     handleClose = () => {
         this.setState({open: false});
-        console.log(this.state.orders);
-
     };
 
     modelOpen = () => {
         this.setState({modelOpen: true});
-        console.log(this.state.totalOrders);
     };
 
     modelClose = () => {
-        this.setState({animalDtail: this.animalDetail, modelOpen: false});
-        console.log(this.state.orders);
+        this.setState({modelOpen: false});
+        // this.setState({animalDetail: this.animalDetail, modelOpen: false});
         // console.log(this.state.animalData);
     };
 
@@ -107,52 +109,82 @@ class Dashboard extends Component {
         db.settings(settings);
         var animalData = this.state.animalData;
         animalData.animal = this.state.animal;
-        animalData.animalPicture = this.state.picture;
-        // console.log(animalData);
+        animalData.sacrifice = this.state.sacrifice;
+        console.log(animalData);
         db.collection('animal').add(animalData);
         this.setState({open: false});
     }
 
     handleChange(event, index, value) {
         var animal = event.target.textContent;
-        // console.log(animal);
-        // console.log(value);
         this.setState({value: value, animal: animal});
     }
 
+    changeSecondValue(event, index, value){
+        var sacrifice = event.target.textContent;
+        console.log(value , sacrifice);
+        this.setState({sacrifice: sacrifice , secondValue : value});
+
+
+    }
     handleChangeS(event, index, value) {
         var sacrifice = event.target.textContent;
         // console.log(sacrifice);
         this.setState({valueS: value, sacrifice: sacrifice});
     }
 
-    loadOrders(){
+    loadOrders() {
+        var arr = [];
         var db = firebase.firestore();
         const settings = {timestampsInSnapshots: true};
         db.settings(settings);
-        var animalID = this.state.animalDetail.id;
-        // console.log(animalID);
-        db.collection('orders').where('participater.animalID', '==', animalID).get().then((orders)=>{
-            orders.forEach((order)=>{
+        var animalID = this.animalDetail.id;
+        db.collection('orders').where('animalID', '==', animalID).get().then((orders) => {
+            orders.forEach((order) => {
                 var orders = order.data();
-                this.setState({orders: orders})
+                orders.orderID = order.id;
+                arr.push(orders);
+                this.setState({orders: arr})
             });
-            // console.log(this.state.orders);
         })
     }
-    picture(e) {
-        var picture = e.target.files[0];
-        console.log(picture.name);
-        var event = firebase.storage().ref().child(picture.name).put(picture);
-        event.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            console.log(downloadURL);
-        })
-        // .then((snapshot) => {
-        //     console.log(snapshot);
-        //     var picturePath = snapshot.downloadURL;
-        //     console.log(picturePath);
-        //     this.setState({picture: picturePath});
+
+    confirmOrder(data) {
+        this.db = firebase.firestore();
+        const settings = {timestampsInSnapshots: true};
+        this.db.settings(settings);
+        var orderData = data;
+        orderData.status = 'CONFIRMED!';
+        this.setState({totalOrders : orderData.totalOrders});
+        console.log(orderData);
+        this.db.collection('orders').doc(orderData.orderID).update(orderData);
+        this.loadOrders();
     }
+
+    rejectOrder(data){
+        this.db = firebase.firestore();
+        const settings = {timestampsInSnapshots: true};
+        this.db.settings(settings);
+        var orderData = data;
+        orderData.status = 'REJECTED!';
+        console.log(orderData);
+        this.db.collection('orders').doc(orderData.orderID).update(orderData);
+        this.loadOrders();
+    }
+
+    // picture(e) {
+    //     var picture = e.target.files[0];
+    //     console.log(picture.name);
+    //     var event = firebase.storage().ref().child(picture.name).put(picture);
+    //     event.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+    //         console.log(downloadURL);
+    //     })
+    //     // .then((snapshot) => {
+    //     //     console.log(snapshot);
+    //     //     var picturePath = snapshot.downloadURL;
+    //     //     console.log(picturePath);
+    //     //     this.setState({picture: picturePath});
+    // }
 
 
     render() {
@@ -181,45 +213,53 @@ class Dashboard extends Component {
                                onChange={this.textChange.bind(this, 'age')}/><br/>
                     <TextField label="Animal color" type="text" value={this.state.animalData.color}
                                onChange={this.textChange.bind(this, 'color')}/><br/>
-                    <p>sacrifice will be</p>
-                    <RadioButtonGroup name="gender" labelPosition="right" defaultSelected="male">
-                        <RadioButton style={{display: 'inline-block', width: '16%'}} value="1st" label="1st day"/>
-                        <RadioButton style={{display: 'inline-block', width: '17%'}} value="2nd" label="2nd day"/>
-                        <RadioButton style={{display: 'inline-block', width: '16%'}} value="3rd" label="3rd day"/>
-                    </RadioButtonGroup>
+                    <SelectField value={this.state.secondValue} onChange={this.changeSecondValue.bind(this)}
+                                 floatingLabelText="Sacrifice will be">
+                        <MenuItem key={1} value={1} primaryText="1st day"/>
+                        <MenuItem key={2} value={2} primaryText="2nd day"/>
+                        <MenuItem key={3} value={3} primaryText="3rd day"/>
+                    </SelectField><br/>
                     <TextField label="Description" type="text" value={this.state.animalData.description}
                                onChange={this.textChange.bind(this, 'description')}/><br/>
                 </Dialog>
-                <div style={{margin: '0 150px 0 70px'}}>
+                <div style={{width: '500px'}}>
                     <Card>
-                        {/*{console.log(this.state.animalDetail)}*/}
                         <CardText>Animal : {this.state.animalDetail.animal}</CardText>
                         <CardText>Age : {this.state.animalDetail.age}</CardText>
                         <CardText>Color : {this.state.animalDetail.color}</CardText>
+                        <CardText>Sacrifice : {this.state.animalDetail.sacrifice}</CardText>
                         <CardText>Description : {this.state.animalDetail.description}</CardText>
-                        <CardText>totalOrders : {this.state.totalOrders}</CardText>
+                        <CardText>totalOrders : {1}</CardText>
                         <div style={{display: "flex", justifyContent: "space-around"}}>
-                        <Button variant="contained" color="primary">Confirm order</Button>
-                        <Button variant="contained" color="primary">Reject</Button>
                         </div>
                         <div style={{textAlign: 'right'}}>
                             <Button color="primary" className='button' onClick={this.modelOpen}>Edit</Button>
                         </div>
                     </Card>
                 </div>
-                {/*{console.log(this.state.orders)}*/}
-                {/*<div>*/}
-                    {/*{this.state.orders.map((orders)=>{*/}
-                        {/*return(*/}
-                            {/*<div>*/}
-                                {/*<Card>*/}
-                                    {/*<CardText>Hello</CardText>*/}
-                                {/*</Card>*/}
-                            {/*</div>*/}
-                        {/*)*/}
-                    {/*})}*/}
-                {/*</div> : 'Hello'}*/}
-                {this.state.animalDetail.id != undefined ? this.loadOrders() : null}
+                <div>
+                    <h3 style={{color: '#3f51b5'}}>Orders in this Animal!</h3>
+                    <div style={{display : 'flex' , justifyContent: 'space-around',  width: '75%'}}>
+                    {this.state.orders.map((orders) => {
+                        return (
+                            <div style={{width: '350px'  , margin:"10px" }}>
+                                <Card key={orders.totalOrders} >
+                                    <CardText>Status : {orders.status}</CardText>
+                                    <CardText>Order : {orders.order}</CardText>
+                                    <CardText>Name : {orders.userName}</CardText>
+                                    <CardText>Phone/No : {orders.userPhone}</CardText>
+                                    <CardText>Time : {new Date(orders.time).toLocaleString()}</CardText>
+                                    <CardText style={{display: 'flex' , justifyContent: 'space-between'}}>
+                                        <Button color="primary" onClick={this.confirmOrder.bind(this , orders)}>Confirm Order</Button>
+                                        <Button color="primary" onClick={this.rejectOrder.bind(this , orders)}>Reject Order</Button>
+                                    </CardText>
+                                </Card>
+                            </div>
+                        )
+                    })}
+                </div>
+                </div>
+
                 <Dialog actions={button} modal={false} open={this.state.modelOpen} onRequestClose={this.handleClose}>
                     <TextField label='Animal' value={this.state.animal} onChange={this.updateAnimal.bind(this)}/>
                     <TextField id="age" label="age" value={this.state.animalDetail.age}

@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import logo from './logo.svg';
 import {Router, Route, Switch, Link} from 'react-router-dom'
 import createBrowserHistory from 'history/createBrowserHistory'
 import firebase from 'firebase'
 import firestore from 'firebase/firestore'
 import Login from './component/login/login'
-import Dashboard from './component/dashboard/dashboard'
+import DashboardS from './component/dashboard/dashboardS'
 
 var config = {
     apiKey: "AIzaSyDVrQX6oUeleINHU3297WSi9R1Gc_GVNoA",
@@ -20,24 +20,22 @@ firebase.initializeApp(config);
 const history = createBrowserHistory();
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-      {/*<Login/>*/}
+    render() {
+        return (
+            <div className="App">
+                <Router history={history}>
+                    <div>
+                        <Switch>
+                            <Route exact path={'/'} component={DashboardS}/>
+                            <Route exact path={'/dashboardS'} component={DashboardS}/>
+                            <Route exact path={'/login'} component={Login}/>
+                        </Switch>
+                    </div>
+                </Router>
 
-          {/*<Router history={history}>*/}
-              {/*<div>*/}
-                  {/*<Switch>*/}
-                      {/*<Route exact path={'/'} component={App}/>*/}
-                      {/*<Route exact path={'/login'} component={Login}/>*/}
-                      {/*<Route exact path={'/dashboard'} component={Dashboard}/>*/}
-                  {/*</Switch>*/}
-              {/*</div>*/}
-          {/*</Router>*/}
-
-      </div>
-    );
-  }
+            </div>
+        );
+    }
 }
 
 export default App;

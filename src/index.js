@@ -9,7 +9,7 @@ import registerServiceWorker from './registerServiceWorker';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 ReactDOM.render(
-    <MuiThemeProvider> <DashboardS/> </MuiThemeProvider>
+    <MuiThemeProvider> <App/> </MuiThemeProvider>
     , document.getElementById('root')
 );
 
