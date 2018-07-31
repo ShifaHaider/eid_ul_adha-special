@@ -30,11 +30,18 @@ class Dashboard extends Component {
             animalUpdate: '',
             picture: '',
             sacrifice: '',
+
+
             animalData: {
+                animal: '',
                 age: null,
                 color: '',
                 description: '',
+                sacrifice: ''
             },
+
+
+
             animalDetail: {},
             animalId: '',
             orders: [],
@@ -79,9 +86,18 @@ class Dashboard extends Component {
 
     updateText(p, e, i) {
         var animalData = this.state.animalData;
+        var animalDetail = this.state.animalDetail;
+        console.log(animalData , animalDetail);
         animalData[p] = e.target.value;
         // console.log(p, e.target.value);
-        this.setState({animalDetail: '', animalData: animalData});
+        console.log(animalData);
+        animalDetail.age = animalData.age;
+        animalDetail.animal = animalData.animal;
+        animalDetail.color = animalData.color;
+        animalDetail.sacrifice = animalData.sacrifice;
+        animalDetail.description = animalData.description;
+        this.setState({animalDetail: animalDetail});
+        // this.setState({animalDetail: '', animalData: animalData});
     }
 
     updateAnimal(e) {
@@ -95,12 +111,16 @@ class Dashboard extends Component {
         var db = firebase.firestore();
         const settings = {timestampsInSnapshots: true};
         db.settings(settings);
-        var id = this.state.animalId;
-        var updateData = this.state.animalData;
-        updateData.animal = this.state.animalUpdate;
-        updateData.id = id;
-        db.collection('animal').doc(id).update(updateData);
-        this.setState({modelOpen: false})
+        var animalDetail = this.state.animalDetail;
+        console.log(animalDetail);
+
+        // var id = this.state.animalId;
+        // var updateData = this.state.animalData;
+        // updateData.animal = this.state.animalUpdate;
+        // updateData.id = id;
+        // console.log(id , updateData);
+        // db.collection('animal').doc(id).update(updateData);
+        // this.setState({modelOpen: false})
     }
 
     saveAnimalData() {
@@ -112,7 +132,7 @@ class Dashboard extends Component {
         animalData.sacrifice = this.state.sacrifice;
         console.log(animalData);
         db.collection('animal').add(animalData);
-        this.setState({open: false});
+        // this.setState({open: false});
     }
 
     handleChange(event, index, value) {
@@ -124,9 +144,8 @@ class Dashboard extends Component {
         var sacrifice = event.target.textContent;
         console.log(value , sacrifice);
         this.setState({sacrifice: sacrifice , secondValue : value});
-
-
     }
+
     handleChangeS(event, index, value) {
         var sacrifice = event.target.textContent;
         // console.log(sacrifice);
@@ -239,11 +258,11 @@ class Dashboard extends Component {
                 </div>
                 <div>
                     <h3 style={{color: '#3f51b5'}}>Orders in this Animal!</h3>
-                    <div style={{display : 'flex' , justifyContent: 'space-around',  width: '75%'}}>
-                    {this.state.orders.map((orders) => {
+                    <div style={{display : 'flex' , width: '100%' , flexWrap:"wrap"}}>
+                        {this.state.orders.map((orders) => {
                         return (
-                            <div style={{width: '350px'  , margin:"10px" }}>
-                                <Card key={orders.totalOrders} >
+                            <div key={orders.orderID} style={{width: '350px'  , margin:"10px" }}>
+                                <Card>
                                     <CardText>Status : {orders.status}</CardText>
                                     <CardText>Order : {orders.order}</CardText>
                                     <CardText>Name : {orders.userName}</CardText>
@@ -261,13 +280,26 @@ class Dashboard extends Component {
                 </div>
 
                 <Dialog actions={button} modal={false} open={this.state.modelOpen} onRequestClose={this.handleClose}>
-                    <TextField label='Animal' value={this.state.animal} onChange={this.updateAnimal.bind(this)}/>
-                    <TextField id="age" label="age" value={this.state.animalDetail.age}
-                               onChange={this.updateText.bind(this, 'age')}/><br/>
-                    <TextField label='color' value={this.state.animalDetail.color}
+                    <TextField
+                        label='Animal'
+                        value={this.state.animalDetail.animal}
+                               onChange={this.updateText.bind(this ,'animal')}/>
+                    <TextField
+                        id="age"
+                        label="age" value={this.state.animalDetail.age}
+                        onChange={this.updateText.bind(this, 'age')}/><br/>
+                    <TextField
+                        label='color'
+                        value={this.state.animalDetail.color}
                                onChange={this.updateText.bind(this, 'color')}/>
-                    <TextField label='description' value={this.state.animalDetail.description}
+                    <TextField
+                        label='description'
+                        value={this.state.animalDetail.description}
                                onChange={this.updateText.bind(this, 'description')}/>
+                    <TextField
+                        label='sacrifice'
+                        value={this.state.animalDetail.sacrifice}
+                               onChange={this.updateText.bind(this, 'sacrifice')}/>
                 </Dialog>
 
             </div>

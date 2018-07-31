@@ -53,8 +53,8 @@ class DashboardS extends Component {
                         <List style={{borderRight: '3px solid #3f51b5',}}>
                             {this.state.animalsData.map((data , index) => {
                                 return (
-                                    <div>
-                                        <ListItem key={index} onClick={this.sendData.bind(this, data)}>
+                                    <div key={index} >
+                                        <ListItem onClick={this.sendData.bind(this, data)}>
                                             {data.animal}
                                         </ListItem>
                                     </div>
